@@ -1,0 +1,21 @@
+plugins {
+    id 'groovy'
+}
+
+group = 'mw'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.groovy:groovy:4.0.14'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.spockframework:spock-core:2.4-M4-groovy-4.0'
+}
+
+test {
+    useJUnitPlatform()
+}
