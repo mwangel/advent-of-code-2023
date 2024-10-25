@@ -179,19 +179,16 @@ class Main17 {
   List<Integer> move( int x, int y, Direction dir ) {
     switch( dir ) {
       case Direction.UP:
-        y--
-        break
+        return [x, y--]
       case Direction.DOWN:
-        y++
-        break
+        return [x, y++]
       case Direction.LEFT:
-        x--
-        break
+        return [x--, y]
       case Direction.RIGHT:
-        x++
-        break
+        return [x++, y]
+      default:
+        return [x, y]
     }
-    return [x, y]
   }
 
 
