@@ -1,5 +1,8 @@
 package mw.day20
 
+import groovy.transform.CompileStatic
+
+@CompileStatic
 interface Module {
   boolean getValue()
   void setValue( boolean value )
@@ -7,13 +10,14 @@ interface Module {
   void setName( String name )
   void addInputConnection( Module sender )
   void addOutputConnection( Module receiver )
-  def receiveSignal( Module sender )
+  //def receiveSignal( Signal signal )
 
   /** Returns true or false for a pulse, or NULL to give no output */
-  Boolean calculate()
+  List<Signal> getOutputSignals( Signal pulse )
 }
 
 
+@CompileStatic
 abstract class ValueModule implements Module {
   List<Module> inputs = []
   List<Module> outputs = []
@@ -28,73 +32,112 @@ abstract class ValueModule implements Module {
 
   String toString() { "$name:${this.class.simpleName}" }
 
-  void log( s ) {
-    println s
+  void log( s ) { println s }
+
+  void debug( s ) {
+    //println s
+  }
+
+  void logSendSignal( Module receiver ) {
+    //log( "$name -${value ? "high" : "low"}-> ${receiver.name}" )
   }
 }
 
 
 /** Constant value = false */
+@CompileStatic
 class Button extends ValueModule {
-  Button( String name ) { this.name = name }
+  Button( String name ) { this.name = "Button" }
 
   @Override
-  def receiveSignal(Module sender) { return null }
-
-  Boolean calculate() { return Boolean.FALSE }
+  List<Signal> getOutputSignals( Signal pulse ) {
+    return outputs.collect{ Module receiver ->
+      logSendSignal( receiver )
+      new Signal( this, receiver, value )
+    } as List<Signal>
+  }
 }
 
 
+@CompileStatic
+class UntypedModule extends ValueModule {
+  boolean currentInput = false
+
+  UntypedModule( String name ) { this.name = name }
+
+  @Override
+  List<Signal> getOutputSignals( Signal pulse ) {
+    if( !pulse.value && name == "rx" )
+      throw new RuntimeException( "rx received a low signal" )
+    currentInput = pulse.value
+    return []
+  }
+}
+
 /** Value is the same as input */
+@CompileStatic
 class Broadcaster extends ValueModule {
   boolean currentInput = false
   Broadcaster( String name ) { this.name = name }
 
   @Override
-  def receiveSignal( Module sender ) { currentInput = sender.value }
-
-  Boolean calculate() {
-    value = inputs[0].getValue()
-    return value
+  List<Signal> getOutputSignals( Signal pulse ) {
+    List<Signal> signalsSent = []
+    value = pulse.value
+    outputs.each { Module receiver ->
+      logSendSignal( receiver )
+      signalsSent << new Signal( this, receiver, value )
+    }
+    return signalsSent
   }
 }
 
 
 /** Invert value if input is false */
+@CompileStatic
 class FlipFlop extends ValueModule {
   Boolean currentInput = false
   FlipFlop( String name ) { this.name = name }
 
-  @Override
-  def receiveSignal(Module sender) {
-    currentInput = sender.value
-  }
-
-  Boolean calculate() {
-    if( inputs.size() > 1 )
-      throw new IllegalStateException( "FlipFlop can only have one input" )
-    if( !currentInput ) {
+  List<Signal> getOutputSignals( Signal pulse ) {
+    currentInput = pulse.value
+    if( currentInput == false ) { // low pulse - invert value
       value = !value
-      return value
+      List<Signal> signalsSent = []
+      outputs.each { Module receiver ->
+        logSendSignal( receiver )
+        signalsSent << new Signal( this, receiver, value )
+      }
+      return signalsSent
     }
     else { // ignore high pulse - nothing happens
-      log("Flipflop $name does nothing")
-      return null
+      debug("Flipflop $name does nothing")
+      return []
     }
   }
 }
 
-/** Value is true if all inputs are true, else false. */
+/** Output signal is True if any input is False.
+ *  Output signal is False if all inputs are True */
+@CompileStatic
 class AndGate extends ValueModule {
   Map<String, Boolean> lastInputs = [:]
   AndGate( String name ) { this.name = name }
 
-  @Override
-  def receiveSignal(Module sender) {
-    lastInputs[ sender.name ] = sender.value
+  void addInputConnection( Module sender ) {
+    inputs << sender
+    lastInputs[sender.name] = false
   }
 
-  def calculate() {
-    value = !lastInputs.values().all { it == true }
+
+  List<Signal> getOutputSignals( Signal pulse ) {
+    lastInputs[pulse.from.name] = pulse.value
+    value = lastInputs.values().any { !it }
+    List<Signal>  signalsSent = []
+    outputs.each { Module receiver ->
+      logSendSignal( receiver )
+      signalsSent << new Signal( this, receiver, value )
+    }
+    return signalsSent
   }
 }

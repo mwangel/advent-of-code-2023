@@ -1,7 +1,7 @@
 package mw.day20
 
 class Tjugo {
-  static def load( List<String> lines ) {
+  static Button load( List<String> lines ) {
     Map<String, List<String>> connections = [:]
     List<Module> modules = []
 
@@ -39,12 +39,16 @@ class Tjugo {
       def sender = modules.find { it.name == senderName }
       receiverNames.each { receiverName ->
         def receiver = modules.find { it.name == receiverName }
+        if( receiver == null ) {
+          receiver = new UntypedModule( receiverName )
+        }
         sender.addOutputConnection( receiver )
         receiver.addInputConnection( sender )
       }
     }
     return button
   }
+
 
   def solve( def model ) {
     println( "Solving..." )
