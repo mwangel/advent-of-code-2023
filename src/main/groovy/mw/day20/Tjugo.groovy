@@ -3,8 +3,7 @@ package mw.day20
 class Tjugo {
   static def load( List<String> lines ) {
     Map<String, List<String>> connections = [:]
-    List<Module> connected = []
-    List<Module> disconnected = []
+    List<Module> modules = []
 
     int nr = 0
 
@@ -20,11 +19,11 @@ class Tjugo {
       connections.put( name, parts[1].split( ", " ).toList() )
 
       if( parts[0].startsWith( "%" ) )
-        disconnected << new FlipFlop( name )
+        modules << new FlipFlop( name )
       else if( parts[0].startsWith( "&" ) )
-        disconnected << new AndGate( name )
+        modules << new AndGate( name )
       else if( name == "broadcaster" )
-        disconnected << new Broadcaster( name )
+        modules << new Broadcaster( name )
       else
         throw new IllegalStateException( "Unknown module: $name on line $nr" )
 
@@ -32,45 +31,19 @@ class Tjugo {
     }
 
     def button = new Button()
-    def broadcaster = disconnected.find { it.name == "broadcaster" }
-    button.setAsInputTo( broadcaster )
-    disconnected.remove( broadcaster )
-    connected << broadcaster
+    def broadcaster = modules.find { it.name == "broadcaster" }
+    button.addOutputConnection( broadcaster )
+    broadcaster.addInputConnection( button )
 
-    while( disconnected.size() > 0 ) {
-      disconnected.each { Module module ->
-        def sources = connections.findAll {
-          it.value.contains( module.name )
-        }.keySet()
-
-        if( sources.size() == 0 )
-          throw new IllegalStateException( "No sources for module: $module.name" )
-        sources.each {String sourceName ->
-          def source = connected.find {
-            it.name == sourceName
-          }
-          if( source == null )
-            println( "Source not found: $sourceName" )
-          else {
-            source.setAsInputTo( module )
-            disconnected.remove( module )
-          }
-        }
+    connections.each { senderName, receiverNames ->
+      def sender = modules.find { it.name == senderName }
+      receiverNames.each { receiverName ->
+        def receiver = modules.find { it.name == receiverName }
+        sender.addOutputConnection( receiver )
+        receiver.addInputConnection( sender )
       }
-
-//      if( receivers != null ) {
-//        receivers.each { String receiverName ->
-//          def receiver = disconnected.find { it.name == receiverName }
-//          if( receiver == null )
-//            receiver = connected.find { it.name == receiverName }
-//          if( receiver == null )
-//            throw new IllegalStateException( "Receiver not found: $receiverName" )
-//          module.setAsInputTo( receiver )
-//        }
-//      }
-//      connected << module
-      return button
     }
+    return button
   }
 
   def solve( def model ) {

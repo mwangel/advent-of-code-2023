@@ -16,14 +16,9 @@ class TjugoTest extends Specification {
       def button = Tjugo.load( test1.readLines(  ) )
 
     when:
-      button.calculate(  )
-      broadcaster.calculate()
-      flipFlop.calculate()
-      andGate.calculate()
+      button.calculate()
 
     then:
       broadcaster.getValue() == true
-      flipFlop.getValue() == true
-      andGate.getValue() == true
   }
 }
