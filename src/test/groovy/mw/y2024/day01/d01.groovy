@@ -20,11 +20,13 @@ class d01 extends Specification {
     when:
       def a = [] as List<Long>
       def b = [] as List<Long>
+      Map<Long, Long> map = [:].withDefault { 0L } // Map number to number of occurences
       input.each { line ->
         def parts = line.split( "   " )
         assert parts.size(  ) == 2
         a.add( parts[0].toLong() )
         b.add( parts[1].toLong() )
+        map[ parts[1].toLong() ]++
       }
       a.sort( true )
       b.sort( true )
@@ -44,13 +46,23 @@ class d01 extends Specification {
     when:
       def similar = 0
       // This is the stupid way to do it with an effort of O(n^2)
+      def startTime = System.currentTimeMillis(  )
       a.each { Long left ->
         def n = b.findAll { it == left }.size(  )
         similar += n  * left
-        println( "$left : $n -> $similar" )
       }
+      println( "Time 2: ${System.currentTimeMillis() - startTime}" )
     then:
       similar == 20520794
+
+    // Part 2 again, but with a map.
+    // This is O(n) and a lot faster but with these small lists it doesn't matter much.
+    when:
+      startTime = System.currentTimeMillis(  )
+      long similar2 = a.sum { map[ it ] * it }
+      println( "Time 2: ${System.currentTimeMillis() - startTime}" )
+    then:
+      similar2 == similar
   }
 
 }

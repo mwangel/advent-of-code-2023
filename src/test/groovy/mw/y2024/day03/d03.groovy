@@ -6,24 +6,13 @@ import spock.lang.Specification
 class d03 extends Specification {
 
   def "Day 03"() {
-    given:
-      def input = """1,0,1~1,2,1
-0,0,2~2,0,2
-0,2,3~2,2,3
-0,0,4~0,2,4
-2,0,5~2,2,5
-0,1,6~2,1,6
-1,1,8~1,1,9"""
+    given: input = this.getClass().getResource( '/y2024/data03.txt' ).readLines()
 
-      input = this.getClass().getResource( '/y2024/data03.txt' ).readLines()
-
-    when:
-      def c = load(input)
-    then:
-      c.collect { Mul mul -> mul.execute() }.sum() == 187825547
+    when: def c = load(input)
+    then: c.collect { Mul mul -> mul.execute().toLong() }.sum() == 187825547
 
     when: def d = load2(input)
-    then: d.collect { Mul mul -> mul.execute() }.sum() == 85508223
+    then: d.collect { Mul mul -> mul.execute().toLong() }.sum() == 85508223
   }
 
 
@@ -53,5 +42,12 @@ class d03 extends Specification {
     }
 
     return muls
+  }
+
+  Op parseOp( String s ) {
+    if( s.startsWith( "mul" ) ) { return Mul.parse( s ) }
+    else if( s == "do()" ) { return new Do() }
+    else if( s == "don't()" ) { return new Dont() }
+    else { throw new IllegalArgumentException( "Unknown operation: $s" ) }
   }
 }
