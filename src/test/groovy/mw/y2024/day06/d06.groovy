@@ -3,6 +3,8 @@ package mw.y2024.day06
 
 import spock.lang.Specification
 
+import java.util.stream.IntStream
+
 class d06 extends Specification {
 
   def "Day 06"() {
@@ -23,13 +25,18 @@ class d06 extends Specification {
       int maxX = map[0].size()
       int maxY = map.size()
       int loops = 0
+      int progress = 0
       maxY.times { int yblock ->
+        int percent = yblock * 100 / maxY
+        if( percent != progress && percent % 10 == 0 ) {
+          progress = percent
+          println( "Progress: $progress%" )
+        }
         maxX.times { int xblock ->
           def key = "$xblock,$yblock"
           if( result.contains( key ))
-            if( findLoop( map, x, y, xblock, yblock ) ) {
+            if( findLoop( map, x, y, xblock, yblock ) )
               loops++
-            }
         }
       }
     then:
@@ -93,19 +100,13 @@ class d06 extends Specification {
    */
   def findLoop( List<String> data, int startX, int startY, int blockX, int blockY ) {
     StringBuilder log = new StringBuilder()
-    if( blockX == startX && blockY == startY ) {
-      println( "Start position is blocked, not a loop then?" )
-      return false
-    }
-    if(data[blockY][blockX] == '#' ) {
-      println( "Obstruction is in an existing wall." )
-      return false
-    }
+    if( blockX == startX && blockY == startY ) return false
+    if( data[blockY][blockX] == '#' ) return false
     int x = startX
     int y = startY
     int dirIndex = 0
     def dir = directions[dirIndex]
-    Map<String, Long> visited = [:].withDefault {0}
+    Map<String, Long> visited = [:].withDefault { 0 }
     LinkedList<String> turns = new LinkedList<String>()
 
     // Move in a straight line until we hit a wall or leave the map.
@@ -116,13 +117,13 @@ class d06 extends Specification {
         if( turns.size()  >= 5 ) {
           if( turns.last == turns[turns.size() - 5] ) {
             // We have found a loop.
-            log.append( "Short loop found at x:$x, y:$y given a new obstruction at x:$blockX, y:$blockY\n" )
-            println( log.toString() )
+//            log.append( "Short loop found at x:$x, y:$y given a new obstruction at x:$blockX, y:$blockY\n" )
+//            println( log.toString() )
             return true
           }
           else {
             if( visited[key] > 2 ) {
-              println( "Long loop at $x,$y. Turns: $turns" )
+//              println( "Long loop at $x,$y. Turns: $turns" )
               return true
             }
           }
@@ -153,8 +154,8 @@ class d06 extends Specification {
         dir = directions[dirIndex]
         turns << "$x,$y,${dir[2]}".toString(  )
         if( turns.size() > 3 && (turns.last == turns[turns.size()-3] ) ) {
-          log.append( "Loop found at x:$x, y:$y given a new obstruction at x:$blockX, y:$blockY\n" )
-          println( log.toString() )
+//          log.append( "Loop found at x:$x, y:$y given a new obstruction at x:$blockX, y:$blockY\n" )
+//          println( log.toString() )
           return true
         }
       }
