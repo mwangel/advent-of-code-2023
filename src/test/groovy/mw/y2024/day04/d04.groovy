@@ -55,13 +55,29 @@ class d04 extends Specification {
     for( int y=0; y < data.size(); y++ ) {
       for( int x=0; x < data[y].size(); x++ ) {
         def s =
+          (int)getChar( data, x, y ) + (int)getChar( data, x+2, y ) +
+          (int)getChar( data, x+1, y+1 )
+          (int)getChar( data, x, y+2 ) + (int)getChar( data, x+2, y+2 )
+        if( s == 385 ) { // 65 + 2*77 + 2*83
+          xmases++
+        }
+      }
+    }
+    return xmases
+  }
+
+  def findAllMasCrossesWithRegex( List<String> data ) {
+    def xmases = 0
+    for( int y=0; y < data.size(); y++ ) {
+      for( int x=0; x < data[y].size(); x++ ) {
+        def s =
           getChar( data, x, y ) + getChar( data, x+1, y ) + getChar( data, x+2, y ) +
-          getChar( data, x, y+1 ) + getChar( data, x+1, y+1 ) + getChar( data, x+2, y+1 ) +
-          getChar( data, x, y+2 ) + getChar( data, x+1, y+2 ) + getChar( data, x+2, y+2 )
+            getChar( data, x, y+1 ) + getChar( data, x+1, y+1 ) + getChar( data, x+2, y+1 ) +
+            getChar( data, x, y+2 ) + getChar( data, x+1, y+2 ) + getChar( data, x+2, y+2 )
         if( s.matches( "M.M.A.S.S" ) ||
-            s.matches( "S.M.A.S.M" ) ||
-            s.matches( "S.S.A.M.M" ) ||
-            s.matches( "M.S.A.M.S" ) )
+          s.matches( "S.M.A.S.M" ) ||
+          s.matches( "S.S.A.M.M" ) ||
+          s.matches( "M.S.A.M.S" ) )
         {
           xmases++
         }
