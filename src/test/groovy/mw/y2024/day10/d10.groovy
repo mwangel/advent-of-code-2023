@@ -6,8 +6,8 @@ class d10 extends Specification {
 
   def "Day 10"() {
     given:
-//      def data = this.getClass().getResource( '/y2024/data10.txt' ).readLines()
-      def data = this.getClass().getResource( '/y2024/data10-test.txt' ).readLines()
+      def data = this.getClass().getResource( '/y2024/data10.txt' ).readLines()
+//      def data = this.getClass().getResource( '/y2024/data10-test.txt' ).readLines()
 
       def map = data.collect { String line ->
         line.collect {it.toLong() }
@@ -16,7 +16,8 @@ class d10 extends Specification {
     when:
       def result = findTrails( map )
     then:
-      result.size(  ) == 9 // test data has 9
+      //result.size(  ) == 194 // test data has 9
+      result.sum() == 36 // test data has 36
   }
 
 
@@ -34,26 +35,30 @@ class d10 extends Specification {
       }
     }
 
+    def scores = []
     startPoints.each {Tuple2<Long, Long> start ->
       Set<Tuple2<Long, Long>> foundNines = new HashSet<>()
       walkFrom( start, map, foundNines )
+      scores << foundNines.size()
       println( "Found ${foundNines.size()} nines from $start" )
     }
 
-    return 0
+    return scores
   }
 
   def walkFrom( Tuple2<Long, Long> start, List<List<Long>> map, Set<Tuple2<Long, Long>> foundNines ) {
     // Each dir contains steps in x and y for searching in one direction.
     def currentHeight = getHeight( map, start[0], start[1] )
+    if( currentHeight == 9 ) {
+      foundNines << start
+      return
+    }
+
     directions.each { List<Integer> dir ->
       def newX = start[0] + dir[0]
       def newY = start[1] + dir[1]
       def newHeight = getHeight( map, newX, newY )
-      if( newHeight == 9 ) {
-        foundNines << new Tuple2<>( newX, newY )
-      }
-      else if( newHeight == currentHeight + 1 ) {
+      if( newHeight == currentHeight + 1 ) {
         walkFrom( new Tuple2<>( newX, newY ), map, foundNines )
       }
     }
