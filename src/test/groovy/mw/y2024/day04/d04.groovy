@@ -1,9 +1,5 @@
 package mw.y2024.day04
 
-import mw.y2024.day03.Do
-import mw.y2024.day03.Dont
-import mw.y2024.day03.Mul
-import mw.y2024.day03.Op
 import spock.lang.Specification
 
 class d04 extends Specification {
