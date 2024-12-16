@@ -20,6 +20,9 @@ class d13 extends Specification {
   }
 
 
+  // In Part 2 the prizes coordinates are increased by 10_000_000_000_000.
+
+
   def part1( List<String> data ) {
     def result = 0
     def patternA = ~/Button A: X\+(?<x>\d+), Y\+(?<y>\d+)/ // Button A: X+0, Y+0
