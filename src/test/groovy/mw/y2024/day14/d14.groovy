@@ -37,22 +37,24 @@ class d14 extends Specification {
       // So let's step 52 and then 101 until we find a tree.
       // For this input there will be a tree at totalsteps = 6516 (52 + 64*101)
 
-      int skip = 52
+      // ...or just step 1 second at a time until we find a tree which is easier now that I know what it looks like :-)
+      int skip = 0 // 52
       robots.each { Robot r -> r.move( skip, maxx, maxy ) }
       // print( robots, maxx, maxy ); println("\n\n")
 
+      final int stepsize = 1 // 101
       int totalsteps = skip
       int n = 0
       while( true ) {
         if( n % 10000 == 0 ) println( "Step $n" )
-        if( n > 1000 ) {
+        if( n > 10000 ) {
           print( "i give up" )
           break
         }
         n += 1
-        totalsteps += 101
-        robots.each { Robot r -> r.move( 101, maxx, maxy ) }
-        println("\n step $n, total $totalsteps")
+        totalsteps += stepsize
+        robots.each { Robot r -> r.move( stepsize, maxx, maxy ) }
+        //println("\n step $n, total $totalsteps")
         // print( robots, maxx, maxy ); println("-------------------------------------------------------")
 
         if( isTree( robots, maxx, maxy ) ) {
@@ -89,29 +91,6 @@ class d14 extends Specification {
   }
 
   boolean isTree( List<Robot> robots, int maxx, int maxy ) {
-    for( int y=0; y < maxy; y++ ) {
-//      def linebots = robots.findAll {
-//        it.y == y
-//      }.sort {
-//        it.x
-//      }
-//
-//      // If there are bots on x=0 or x=maxx-1 then it is not a tree
-//      if( linebots.find {
-//        it.x == 0 || it.x == maxx - 1
-//      } ) {
-//        return false
-//      }
-
-      // if there are gaps between the bots on this line then it is not a tree
-//      for( int i = 0; i < linebots.size() - 1; i++ ) {
-//        if( linebots[i + 1].x - linebots[i].x > 1 ) {
-//          return false
-//        }
-//      }
-
-    }
-
     // if any bot is in the same place as another bot then it is not a tree
     for( int i = 0; i < robots.size(); i++ ) {
       def r = robots[i]
