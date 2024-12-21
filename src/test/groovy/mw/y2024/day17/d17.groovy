@@ -1,5 +1,6 @@
 package mw.y2024.day17
 
+import groovy.transform.CompileStatic
 import spock.lang.Specification
 
 class d17 extends Specification {
@@ -16,12 +17,10 @@ class d17 extends Specification {
 
 
   def run( long a, long b, long c, List program ) {
-    boolean debug = true
     List<String> output = []
     int pc = 0 // program counter - index to the next instruction to execute
     while( pc < program.size() ) {
       Instruction instruction = program[pc]
-      if( debug ) println( "Executing $pc: ${instruction.opcode} ${instruction.data}" )
       (a,b,c,pc) = execute( instruction, a, b, c, pc, output )
     }
 
@@ -30,6 +29,7 @@ class d17 extends Specification {
     return output
   }
 
+  @CompileStatic
   def execute( Instruction instruction, long a, long b, long c, long pc, List<String> output ) {
     long comboValue = instruction.data
     switch( instruction.data ) {
@@ -48,17 +48,13 @@ class d17 extends Specification {
         b = b ^ literalValue
         pc++
         break
-      case 2: // b = lowest 3 bits of comboValue
+      case 2: // b = lowest 3 bits of comboValue (also know as "modulo 8")
         b = comboValue & 0b111
         pc++
         break
-      case 3: // jnz (if a != 0 then pc = literalValue)
-        if( a != 0 ) {
-          pc = literalValue
-        }
-        else {
-          pc++
-        }
+      case 3: // jnz (if a != 0 then pc = literalValue, else pc++)
+        if( a != 0 ) pc = literalValue
+        else pc++
         break
       case 4: // bxc (b = b xor c)
         b = b ^ c
