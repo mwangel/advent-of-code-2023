@@ -5,7 +5,7 @@ import spock.lang.Specification
 
 class d17 extends Specification {
 
-  def "Day 17 - computer"() {
+  def "Day 17 - hello computer"() {
     given:
 //      def (a,b,c, program, p1) = [729, 0, 0, decode([0,1,5,4,3,0]), "4,6,3,5,6,3,5,2,1,0"]
       def (a,b,c, program, p1) = [35200350, 0, 0, decode([2,4,1,2,7,5,4,7,1,3,5,5,0,3,3,0]), "2,7,4,7,2,1,7,5,1"]
@@ -15,6 +15,28 @@ class d17 extends Specification {
       result.join(",") == p1
   }
 
+  def "Day 17 - infinite computer"() {
+    given:
+//      def (a,b,c, program, p1, p2) = [2024, 0, 0, decode([0,3,5,4,3,0]), "0,3,5,4,3,0", 117440]
+      def (a,b,c, program, p1, p2) = [35200350, 0, 0, decode([2,4,1,2,7,5,4,7,1,3,5,5,0,3,3,0]), "2,4,1,2,7,5,4,7,1,3,5,5,0,3,3,0", 1]
+    when:
+      long counter = -1
+      long start = 100_000_000
+      long end = start + 100_000_000
+      for( long test=start; test < end; test++ ) {
+        if( test % 100_000 == 0 ) println( "Testing: $test" )
+        def result = run( test, b, c, program )
+        if( result.join(",") == p1 ) {
+          println( "Found: $test" )
+          counter = test
+          break
+        }
+      }
+    then:
+      println( "Tested from $start to $end. Result = $counter" )
+      counter > 0
+      counter == p2
+  }
 
   def run( long a, long b, long c, List program ) {
     List<String> output = []
@@ -24,8 +46,6 @@ class d17 extends Specification {
       (a,b,c,pc) = execute( instruction, a, b, c, pc, output )
     }
 
-    println( "-------------")
-    println( output )
     return output
   }
 
